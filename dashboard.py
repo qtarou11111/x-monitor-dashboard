@@ -845,23 +845,12 @@ def render_content_analysis(df):
         """, unsafe_allow_html=True)
 
     # ---- ディープ分析JSONからキーインサイト表示 ----
-    deep = None
-    sb_url, sb_key = get_supabase_config()
-    if sb_url and sb_key:
-        import requests as _req
-        _resp = _req.get(f"{sb_url}/rest/v1/xmonitor_analysis",
-                         headers={"apikey": sb_key, "Authorization": f"Bearer {sb_key}"},
-                         params={"analysis_type": "eq.content_deep", "select": "data"})
-        if _resp.status_code == 200 and _resp.json():
-            deep = _resp.json()[0]["data"]
-    if deep is None:
-        deep_path = ANALYSIS_DIR / "content_deep.json"
-        if deep_path.exists():
-            with open(deep_path, encoding="utf-8") as f:
-                deep = json.load(f)
-    if deep:
+    deep_path = ANALYSIS_DIR / "content_deep.json"
+    if deep_path.exists():
+        with open(deep_path, encoding="utf-8") as f:
+            deep = json.load(f)
         findings = deep.get("key_findings", [])
-        if findings:  # noqa
+        if findings:
             st.markdown(f'<div class="section-header">Key Findings</div>', unsafe_allow_html=True)
             for i, finding in enumerate(findings):
                 icon = ["💡", "📊", "🏆", "🔥", "📝", "⚠️", "📈"][i % 7]
